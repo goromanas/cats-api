@@ -19,7 +19,7 @@ $ yarn dev
 
 ```bash
 # unit tests
-$ yarn run test
+$ yarn test
 ```
 
 ## API documentation
