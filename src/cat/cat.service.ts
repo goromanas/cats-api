@@ -10,8 +10,12 @@ export class CatService {
   constructor(@InjectRepository(Cat) private catRepo: Repository<Cat>) {}
 
   async getAllCats(paginationQuery?: CatQueryDto) {
-    if (!paginationQuery)
-      return this.catRepo.find({ order: { [paginationQuery.sort]: 'ASC' } });
+    if (!paginationQuery) {
+      const result = await this.catRepo.find({
+        order: { [paginationQuery.sort]: 'ASC' },
+      });
+      return { result };
+    }
 
     const { limit, offset, sort, order, name } = paginationQuery;
 
@@ -26,9 +30,9 @@ export class CatService {
 
     if (nameQuery) queryOptions.where = { name: nameQuery };
 
-    const result = await this.catRepo.findAndCount(queryOptions);
+    const [result, amount] = await this.catRepo.findAndCount(queryOptions);
 
-    return result;
+    return { result, amount };
   }
 
   async getSingleCat(id: number) {
