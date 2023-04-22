@@ -4,13 +4,12 @@ import { Repository } from 'typeorm';
 import { Cat } from './cat.entity';
 import { CatDto } from './dto/cat.dto';
 import { CatPaginationDto } from './dto/cat-pagination.dto';
-import { CatSearchDto } from './dto/cat-search.dto';
 
 @Injectable()
 export class CatService {
   constructor(@InjectRepository(Cat) private catRepo: Repository<Cat>) {}
 
-  private async getAllCats(paginationQuery?: CatPaginationDto) {
+  async getAllCats(paginationQuery?: CatPaginationDto) {
     if (!paginationQuery) return this.catRepo.find();
 
     const { limit, offset } = paginationQuery;
@@ -23,7 +22,7 @@ export class CatService {
     return result;
   }
 
-  private async getSingleCat(id: number) {
+  async getSingleCat(id: number) {
     const cat = await this.catRepo.findOne({ where: { id } });
     if (!cat) throw new NotFoundException();
     return cat;
@@ -32,12 +31,6 @@ export class CatService {
   addCat(data: CatDto) {
     const product = this.catRepo.create(data);
     return this.catRepo.save(product);
-  }
-
-  getCats(params?: CatSearchDto, paginationQuery?: CatPaginationDto) {
-    if (params.id) return this.getSingleCat(params.id);
-
-    return this.getAllCats(paginationQuery);
   }
 
   async deleteCat(id: number) {
