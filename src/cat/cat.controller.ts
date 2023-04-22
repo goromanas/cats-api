@@ -10,19 +10,21 @@ import {
 } from '@nestjs/common';
 import { CatService } from './cat.service';
 import { CatDto } from './dto/cat.dto';
+import { CatPaginationDto } from './dto/cat-pagination.dto';
+import { CatSearchDto } from './dto/cat-search.dto';
 
 @Controller('cat')
 export class CatController {
   constructor(private catService: CatService) {}
 
-  @Get()
+  @Get('/search')
   searchCatByName(@Query('name') name: string) {
     return this.catService.searchCatByName(name);
   }
 
   @Get('/:id?')
-  getCats(@Param('id') id?: string) {
-    return this.catService.getCats(id);
+  getCats(@Param() params?: CatSearchDto, @Query() query?: CatPaginationDto) {
+    return this.catService.getCats(params, query);
   }
 
   @Post()

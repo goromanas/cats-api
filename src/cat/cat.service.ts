@@ -1,19 +1,26 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cat } from './cat.entity';
 import { CatDto } from './dto/cat.dto';
+import { CatPaginationDto } from './dto/cat-pagination.dto';
+import { CatSearchDto } from './dto/cat-search.dto';
 
 @Injectable()
 export class CatService {
   constructor(@InjectRepository(Cat) private catRepo: Repository<Cat>) {}
 
-  private getAllCats() {
-    return this.catRepo.find();
+  private async getAllCats(paginationQuery?: CatPaginationDto) {
+    if (!paginationQuery) return this.catRepo.find();
+
+    const { limit, offset } = paginationQuery;
+
+    const result = await this.catRepo.findAndCount({
+      take: limit,
+      skip: offset,
+    });
+
+    return result;
   }
 
   private async getSingleCat(id: number) {
@@ -27,17 +34,10 @@ export class CatService {
     return this.catRepo.save(product);
   }
 
-  getCats(id?: string) {
-    if (id) {
-      try {
-        const formattedId = parseInt(id);
-        return this.getSingleCat(formattedId);
-      } catch {
-        throw new BadRequestException();
-      }
-    }
+  getCats(params?: CatSearchDto, paginationQuery?: CatPaginationDto) {
+    if (params.id) return this.getSingleCat(params.id);
 
-    return this.getAllCats();
+    return this.getAllCats(paginationQuery);
   }
 
   async deleteCat(id: number) {
