@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { CatService } from './cat.service';
 import { CatDto } from './dto/cat.dto';
-import { CatPaginationDto } from './dto/cat-pagination.dto';
+import { CatQueryDto } from './dto/cat-query.dto';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('cat')
@@ -18,18 +18,26 @@ import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 export class CatController {
   constructor(private catService: CatService) {}
 
-  @Get('/search')
-  searchCatByName(@Query('name') name: string) {
-    return this.catService.searchCatByName(name);
-  }
-
   @Get()
   @ApiOperation({
-    summary: 'Get all cats with limit and offset optional query params',
+    summary:
+      'Get all cats with limit and offset optional query and sorting params',
   })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiQuery({ name: 'offset', required: false, type: Number })
-  getCats(@Query() query?: CatPaginationDto) {
+  @ApiQuery({
+    name: 'order',
+    required: false,
+    type: String,
+    example: 'ASC',
+  })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    type: String,
+    example: 'name',
+  })
+  getCats(@Query() query?: CatQueryDto) {
     return this.catService.getAllCats(query);
   }
 
